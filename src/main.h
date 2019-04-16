@@ -5,6 +5,12 @@
 #include <sys/types.h>
 #include <stdint.h>
 
+#include "metadata.h"
+
+#ifdef __gnu_linux__
+#include <pulse/simple.h>
+#endif
+
 // 此结构体保存命令行传入的参数
 typedef struct _Settings_Struct {
     double timeSpeed;
@@ -15,6 +21,38 @@ typedef struct _Settings_Struct {
 
 // 声音子系统
 typedef struct _Sound_Subsystem_Struct {
+#ifdef __gnu_linux__
+    pa_simple * (*pa_simple_new) (
+        const char *,
+        const char *,
+        pa_stream_direction_t,
+        const char *,
+        const char *,
+        const pa_sample_spec *,
+        const pa_channel_map *,
+        const pa_buffer_attr *,
+        int *
+    );
+
+    int (* pa_simple_write) (
+        pa_simple *,
+        const void *,
+        size_t,
+        int *
+    );
+
+    int (*pa_simple_drain) (
+        pa_simple *,
+        int *
+    );
+
+    void (*pa_simple_free) (
+        pa_simple *
+    );
+#endif
+
+    void *pulseaudio;
+
     uint8_t *audioWAVData;
     char audioStatus[100];
     size_t datalen;
@@ -71,5 +109,13 @@ typedef struct _posixThread_IPC_Struct {
     soundSubsys_t sound;
 
 } PosixThreadIPC_t;
+
+/**
+ * 可以看做 PosuxThreadIPC_t 和 Metadata_t 结构体的整合
+*/
+typedef struct _PPC_Start {
+    PosixThreadIPC_t *prop;
+    Metadata_t *md;
+} threadsPPC_t;
 
 #endif // _MAIN_H

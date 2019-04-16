@@ -6,8 +6,12 @@
 #include "threads.h"
 #include "main.h"
 #include <pthread.h>
+
+#ifdef __gnu_linux__
 #include <pulse/simple.h>
 #include <pulse/error.h>
+#endif
+
 #include <string.h>
 #include <stdio.h>
 #include <fcntl.h>
@@ -18,7 +22,7 @@
 #include <malloc.h>
 
 void WavDataPlayer(threadsPPC_t *ppc) {
-
+#ifdef __gnu_linux__
     pa_simple *sound = NULL;
     ppc->prop->sound.writed = 0;
     ppc->prop->sound.soundBreak = false;
@@ -34,7 +38,7 @@ void WavDataPlayer(threadsPPC_t *ppc) {
     ss.rate = ppc->prop->sound.rate;
     ss.channels = ppc->prop->sound.channel;
 
-    sound = pa_simple_new (
+    sound = ppc->prop->sound.pa_simple_new (
         NULL,
         "MelterSoundService",
         PA_STREAM_PLAYBACK,
@@ -62,15 +66,18 @@ void WavDataPlayer(threadsPPC_t *ppc) {
             buf[j] = ppc->prop->sound.audioWAVData[i];
         }
         strcpy(ppc->prop->sound.audioStatus, "PulseAudio");
-        if (pa_simple_write(sound, buf, 1024, &error)) {
+        if (ppc->prop->sound.pa_simple_write(sound, buf, 1024, &error)) {
             strcpy(ppc->prop->sound.audioStatus, "pa_simple_write() failed");
             return ;
         }
         ppc->prop->sound.writed += 1024;
     }
 
-    pa_simple_drain(sound, &error);
-    pa_simple_free(sound);
+    ppc->prop->sound.pa_simple_drain(sound, &error);
+    ppc->prop->sound.pa_simple_free(sound);
+#else
+    strcpy(ppc->prop->sound.audioStatus, "Not Supported");
+#endif
 }
 
 int loadWAVDataFromPath(char const *file, threadsPPC_t *ppc) {

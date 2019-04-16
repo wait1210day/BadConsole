@@ -1,7 +1,7 @@
 all: main
 
 main: toolkit.o compositor.o main.o threads_Playback.o threads_Prompt.o subcmds.o
-	gcc -o main toolkit.o compositor.o main.o threads_Playback.o threads_Prompt.o subcmds.o -lpulse-simple -lpthread -lreadline -g
+	gcc -o main toolkit.o compositor.o main.o threads_Playback.o threads_Prompt.o subcmds.o -lpulse-simple -lpthread -lreadline -ldl
 
 main.o:
 	gcc -c -Wall -O2 -Isrc/ -o main.o src/main.c -g

@@ -8,20 +8,6 @@
 
 #define THR_BUFSIZE 1024
 
-typedef struct _command_linked_list_struct {
-    char *base;
-    int len;
-    struct _command_linked_list_struct *next;
-} CmdLinkedList_t;
-
-/**
- * 可以看做 PosuxThreadIPC_t 和 Metadata_t 结构体的整合
-*/
-typedef struct _PPC_Start {
-    PosixThreadIPC_t *prop;
-    Metadata_t *md;
-} threadsPPC_t;
-
 /**
  * 创建命令提示符服务线程。默认入口函数是 commandPrompt。
  * 此线程一旦被创建，将立刻读取控制台标准输入。线程只监听回车事件，

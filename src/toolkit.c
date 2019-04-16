@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <dlfcn.h>
+
 double compareStr(char const *str1, char const *str2, unsigned long size, unsigned short skip) {
     unsigned long same = 0;
 
@@ -166,3 +168,62 @@ void printMetadata(Metadata_t *m) {
     printf("Metadata: FrameSize %ld\n", m->frameSize);
     printf("Metadata: RGBOption %sRGBTest\033[0m\n", m->RGBOption);
 }
+
+#ifdef __gnu_linux__
+
+pa_simple *__default_pa_simple_new (
+    const char *server,
+    const char *name,
+    pa_stream_direction_t dir,
+    const char *dev,
+    const char *stream_name,
+    const pa_sample_spec *ss,
+    const pa_channel_map *map,
+    const pa_buffer_attr *attr,
+    int *error) {
+
+
+    return NULL;
+}
+int __default_pa_simple_write(pa_simple *s, const void *data, size_t bytes, int *error) {
+    return 1;
+}
+int __default_pa_simple_drain (pa_simple *s, int *error) {
+    return -1;
+}
+void __default_pa_simple_free (pa_simple *s) {
+    return ;
+}
+
+/**
+ * 加载 PulseAudio 库函数
+*/
+int loadPulseaudioDynamicLib (threadsPPC_t *ppc, char const *path) {
+    ppc->prop->sound.pulseaudio = dlopen (path, RTLD_NOW);
+    if (ppc->prop->sound.pulseaudio == NULL) {
+        ppc->prop->sound.pa_simple_new = __default_pa_simple_new;
+        return -1;
+    }
+
+    ppc->prop->sound.pa_simple_new = dlsym (ppc->prop->sound.pulseaudio, "pa_simple_new");
+    ppc->prop->sound.pa_simple_write = dlsym (ppc->prop->sound.pulseaudio, "pa_simple_write");
+    ppc->prop->sound.pa_simple_drain = dlsym (ppc->prop->sound.pulseaudio, "pa_simple_drain");
+    ppc->prop->sound.pa_simple_free = dlsym (ppc->prop->sound.pulseaudio, "pa_simple_free");
+
+    if (ppc->prop->sound.pa_simple_new == NULL) ppc->prop->sound.pa_simple_new = __default_pa_simple_new;
+    if (ppc->prop->sound.pa_simple_write == NULL) ppc->prop->sound.pa_simple_write = __default_pa_simple_write;
+    if (ppc->prop->sound.pa_simple_drain == NULL) ppc->prop->sound.pa_simple_drain = __default_pa_simple_drain;
+    if (ppc->prop->sound.pa_simple_free == NULL) ppc->prop->sound.pa_simple_free = __default_pa_simple_free;
+
+    return 0;
+}
+
+/**
+ * 释放 PulseAudio 函数库
+*/
+void freePulseaudioDynamicLib (threadsPPC_t *ppc) {
+    if (ppc->prop->sound.pulseaudio != NULL)
+        dlclose (ppc->prop->sound.pulseaudio);
+}
+
+#endif

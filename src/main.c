@@ -32,6 +32,9 @@ int main(int argc, char const *argv[]) {
     ppc.prop = &property;
 
 
+    // 加载 pulseaudio 库
+    loadPulseaudioDynamicLib (&ppc, "/usr/lib/libpulse-simple.so.0.1.1");
+
     // 加载 WAV 文件并创建播放线程
     loadWAVDataFromPath (argv[4], &ppc);
     createPlaybackPosixThread (&playbackThread, &ppc, 2, 44100);
@@ -61,6 +64,8 @@ int main(int argc, char const *argv[]) {
     pthread_join(playbackThread, NULL);
     puts("Waitting for commandline thread...");
     pthread_cancel(commandline);
+
+    freePulseaudioDynamicLib (&ppc);
 
     return 0;
 }

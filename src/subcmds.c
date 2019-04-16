@@ -33,7 +33,7 @@ void __init_subcmd_pionters(subcmdPionter_t *table) {
  * help 命令输出 MulterConsole 的所有內建命令帮助信息
  * 
 */
-REGCMD(help) {
+REGCMD (help) {
     puts ("\033[34mMelterConsole Built-in Commands\033[0m");
     puts ("\033[32mUsage:\033[0m [<version>|<help>|<...>] arg1 arg2 arg3 \033[31m...\033[0m");
     puts ("\nBuiltin Commands: ");
