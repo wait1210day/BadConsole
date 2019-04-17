@@ -22,6 +22,9 @@
 
 
 int createCommandlinePosixThread(pthread_t *id, threadsPPC_t *ppc) {
+    ppc->prop->prompt.cmdPause = true;
+    ppc->prop->prompt.cmdTriggerTime = (int) ppc->prop->timeSpeed * 10;
+
     if (pthread_create(id, NULL, (void *)commandPrompt, ppc) < 0) {
         printf("Melter: Cannot create commandline thread\n");
         return -1;
@@ -38,6 +41,8 @@ void commandPrompt(threadsPPC_t *ppc) {
     __init_subcmd_pionters(&cmdpionter);
 
     while (1) {
+        while (ppc->prop->prompt.cmdPause)
+            usleep (ppc->prop->prompt.cmdTriggerTime);
         // 读取一个字节内容
         read(STDIN_FILENO, privateBuffer, 1);
 

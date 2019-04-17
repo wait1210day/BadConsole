@@ -23,7 +23,7 @@ int createCommandlinePosixThread(pthread_t *id, threadsPPC_t *ppc);
 */
 int createPlaybackPosixThread(pthread_t *id, threadsPPC_t *ppc, int channels, int rate);
 void WavDataPlayer(threadsPPC_t *ppc);
-int loadWAVDataFromPath(char const *file, threadsPPC_t *ppc);
+int loadWAVDataFromPath(threadsPPC_t *ppc);
 
 /**
  * 用于处理用户输入。其核心为
@@ -32,5 +32,10 @@ int loadWAVDataFromPath(char const *file, threadsPPC_t *ppc);
  * 应用。
 */
 void commandPrompt(threadsPPC_t *ppc);
+
+/**
+ * 创建混成器进程
+*/
+int createCompositionPosixThread (pthread_t *id, threadsPPC_t *ppc, unsigned long int off);
 
 #endif

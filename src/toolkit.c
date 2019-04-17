@@ -8,8 +8,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <getopt.h>
 
 #include <dlfcn.h>
+
+static char const getopt_shortopts[] = "h:m:t:f:w:l:";
+static struct option getopt_longopts[] = {
+    { "help", no_argument, NULL, 'h' },
+    { "melt-file", required_argument, NULL, 'm' },
+    { "time-speed", required_argument, NULL, 't' },
+    { "frame-skipping-rate", required_argument, NULL, 'f' },
+    { "audio-wav", required_argument, NULL, 'w' },
+    { "pulseaudio-dynamic-lib", required_argument, NULL, 'l' },
+    { NULL, no_argument, NULL, 0 }
+};
 
 double compareStr(char const *str1, char const *str2, unsigned long size, unsigned short skip) {
     unsigned long same = 0;
@@ -21,21 +33,59 @@ double compareStr(char const *str1, char const *str2, unsigned long size, unsign
     return (double) same / (double) size;
 }
 
-int initDataStruct(PosixThreadIPC_t *property, char const **argv, int argc) {
-    property->compositorPause = false;
-    property->toBeContinue = true;
-    property->skipedFrames = 0;
-    property->sameRate = 0;
+int initDataStruct(PosixThreadIPC_t *property, char **argv, int argc) {
+    property->buffer            = NULL;
+    property->bigBuffer         = NULL;
+    property->frameBuffer       = NULL;
+    property->frameBuffer_Back  = NULL;
+    property->args.meltedFile   = NULL;
+    property->args.wavFile      = NULL;
+    property->args.pulseLib     = NULL;
+    property->sound.soundBreak  = false;
+    property->sound.soundPause  = true;
+    property->compositorBreak   = false;
+    property->compositorPause   = true;
+    property->toBeContinue      = true;
+    property->skipedFrames      = 0;
+    property->sameRate          = 0;
     
     if (argc < 2) {
         fprintf(stderr, "Melter: Cannot resolve arguments\n");
         return -1;
     }
 
+    int c;
+    while ((c = getopt_long (argc, (char *const *)argv, getopt_shortopts, getopt_longopts, NULL)) != -1) {
+        switch (c) {
+            case 'h':
+                printf ("Test success\n");
+                break;
+            case 'm':
+                property->args.meltedFile = malloc (strlen(optarg));
+                strcpy (property->args.meltedFile, optarg);
+                break;
+            case 't':
+                property->args.timeSpeed = atof(optarg) * 1000;
+                break;
+            case 'f':
+                property->args.skippingFrameRate = atof(optarg);
+                break;
+            case 'w':
+                property->args.wavFile = malloc (strlen(optarg));
+                strcpy (property->args.wavFile, optarg);
+                break;
+            case 'l':
+                property->args.pulseLib = malloc (strlen (optarg));
+                strcpy (property->args.pulseLib, optarg);
+                break;
+        }
+    }
+
+    /*
     property->args.meltedFile = argv[1];
     property->args.timeSpeed = atof(argv[2]) * 1000;
     property->args.skippingFrameRate = atof(argv[3]);
-    property->compositorTriggerTime = (int)property->args.timeSpeed * 10;
+    */
 
     property->meltFileDescriptor = open(property->args.meltedFile, O_RDWR);
     if (property->meltFileDescriptor < 0) {
@@ -59,6 +109,10 @@ int freeSystemResources(PosixThreadIPC_t *property) {
     property->frameBuffer = NULL;
     property->frameBuffer_Back = NULL;
     property->meltFileDescriptor = -1;
+
+    if (property->args.meltedFile) free (property->args.meltedFile);
+    if (property->args.wavFile) free (property->args.wavFile);
+    if (property->args.pulseLib) free (property->args.pulseLib);
 
     return 0;
 }
@@ -198,7 +252,9 @@ void __default_pa_simple_free (pa_simple *s) {
 /**
  * 加载 PulseAudio 库函数
 */
-int loadPulseaudioDynamicLib (threadsPPC_t *ppc, char const *path) {
+int loadPulseaudioDynamicLib (threadsPPC_t *ppc) {
+    char *path = ppc->prop->args.pulseLib;
+
     ppc->prop->sound.pulseaudio = dlopen (path, RTLD_NOW);
     if (ppc->prop->sound.pulseaudio == NULL) {
         ppc->prop->sound.pa_simple_new = __default_pa_simple_new;

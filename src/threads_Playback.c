@@ -5,6 +5,7 @@
 
 #include "threads.h"
 #include "main.h"
+#include "compositor.h"
 #include <pthread.h>
 
 #ifdef __gnu_linux__
@@ -80,7 +81,9 @@ void WavDataPlayer(threadsPPC_t *ppc) {
 #endif
 }
 
-int loadWAVDataFromPath(char const *file, threadsPPC_t *ppc) {
+int loadWAVDataFromPath(threadsPPC_t *ppc) {
+    char *file = ppc->prop->args.wavFile;
+
     int fd = open(file, O_RDONLY);
     if (fd < 0) {
         perror("Melter: loadWAVDataFromPath: Cannot open file");
@@ -98,7 +101,7 @@ int loadWAVDataFromPath(char const *file, threadsPPC_t *ppc) {
     return 0;
 }
 
-int createPlaybackPosixThread(pthread_t *id, threadsPPC_t *ppc, int channels, int rate) {
+int createPlaybackPosixThread (pthread_t *id, threadsPPC_t *ppc, int channels, int rate) {
     ppc->prop->sound.rate = rate;
     ppc->prop->sound.channel = channels;
     ppc->prop->sound.soundPause = true;
@@ -108,5 +111,17 @@ int createPlaybackPosixThread(pthread_t *id, threadsPPC_t *ppc, int channels, in
         printf("Melter: Cannot create player thread\n");
         return -1;
     }
+    return 0;
+}
+
+int createCompositionPosixThread (pthread_t *id, threadsPPC_t *ppc, unsigned long int off) {
+    ppc->prop->frameOffset = off;
+    ppc->prop->compositorTriggerTime = (int)ppc->prop->args.timeSpeed * 10;
+
+    if (pthread_create (id, NULL, (void *) frameCompositor, ppc) < 0) {
+        printf ("Melter: Cannot create composition thread\n");
+        return -1;
+    }
+
     return 0;
 }

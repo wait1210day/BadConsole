@@ -15,7 +15,9 @@
 typedef struct _Settings_Struct {
     double timeSpeed;
     double skippingFrameRate;
-    char const *meltedFile;
+    char *meltedFile;
+    char *wavFile;
+    char *pulseLib;
 
 } CommandLineARGS_t;
 
@@ -66,7 +68,13 @@ typedef struct _Sound_Subsystem_Struct {
     int soundTriggerTime;
 
     bool soundBreak;
-} soundSubsys_t;
+} Soundsys_t;
+
+// 命令行子系统
+typedef struct _Commandline_Properties_Struct {
+    bool cmdPause;
+    int cmdTriggerTime;
+} Promptsys_t;
 
 // 此结构体沟通所有关键函数并传递参数
 typedef struct _posixThread_IPC_Struct {
@@ -102,11 +110,15 @@ typedef struct _posixThread_IPC_Struct {
     /* 已跳过的帧计数 */
     unsigned int skipedFrames;
 
+    /* 第一帧文件偏移量 */
+    unsigned long int frameOffset;
+
     /* 打开的帧描述文件标识符（文件描述符） */
     int meltFileDescriptor;
 
     CommandLineARGS_t args;
-    soundSubsys_t sound;
+    Soundsys_t sound;
+    Promptsys_t prompt;
 
 } PosixThreadIPC_t;
 

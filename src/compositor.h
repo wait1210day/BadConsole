@@ -7,6 +7,6 @@
  * 帧混成与输出函数。接受一个参数，指向 PosixThreadIPC_t
  * 结构体的指针
 */
-void frameCompositor(PosixThreadIPC_t *properties, Metadata_t *metadata, int frameStartOffset);
+void frameCompositor(threadsPPC_t *ppc);
 
 #endif // _COMPSITOR_H

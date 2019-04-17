@@ -16,7 +16,7 @@ double compareStr(char const *str1, char const *str2, unsigned long size, unsign
  * 初始化 PosixThreadIPC 结构体。
  * 第二个参数是指向 argv 的指针。
 */
-int initDataStruct(PosixThreadIPC_t *property, char const **argv, int argc);
+int initDataStruct(PosixThreadIPC_t *property, char **argv, int argc);
 
 /**
  * 释放内存并关闭一些文件描述符。
@@ -54,7 +54,7 @@ void __default_pa_simple_free (pa_simple *s);
 /**
  * 加载 PulseAudio 库函数
 */
-int loadPulseaudioDynamicLib (threadsPPC_t *ppc, char const *path);
+int loadPulseaudioDynamicLib (threadsPPC_t *ppc);
 
 /**
  * 释放 PulseAudio 函数库

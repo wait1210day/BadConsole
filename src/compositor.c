@@ -2,6 +2,7 @@
 #include "main.h"
 #include "compositor.h"
 #include "toolkit.h"
+#include "threads.h"
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -11,7 +12,12 @@
 #include <stdio.h>
 #include <malloc.h>
 
-void frameCompositor(PosixThreadIPC_t *properties, Metadata_t *metadata, int frameStartOffset) {
+void frameCompositor (threadsPPC_t *ppc) {
+
+    PosixThreadIPC_t *properties = ppc->prop;
+    Metadata_t *metadata = ppc->md;
+    unsigned long int frameStartOffset = properties->frameOffset;
+
     properties->compositorBreak = false;
 
     // 定位到第一帧头部
