@@ -1,6 +1,7 @@
 #include "metadata.h"
 #include "toolkit.h"
 #include "main.h"
+#include "helper.h"
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -12,9 +13,11 @@
 
 #include <dlfcn.h>
 
-static char const getopt_shortopts[] = "h:m:t:f:w:l:";
+static char const getopt_shortopts[] = "hvdm:t:f:w:l:";
 static struct option getopt_longopts[] = {
     { "help", no_argument, NULL, 'h' },
+    { "version", no_argument, NULL, 'v' },
+    { "details", no_argument, NULL, 'd' },
     { "melt-file", required_argument, NULL, 'm' },
     { "time-speed", required_argument, NULL, 't' },
     { "frame-skipping-rate", required_argument, NULL, 'f' },
@@ -41,6 +44,7 @@ int initDataStruct(PosixThreadIPC_t *property, char **argv, int argc) {
     property->args.meltedFile   = NULL;
     property->args.wavFile      = NULL;
     property->args.pulseLib     = NULL;
+    property->sound.pulseaudio  = NULL;
     property->sound.soundBreak  = false;
     property->sound.soundPause  = true;
     property->compositorBreak   = false;
@@ -58,7 +62,22 @@ int initDataStruct(PosixThreadIPC_t *property, char **argv, int argc) {
     while ((c = getopt_long (argc, (char *const *)argv, getopt_shortopts, getopt_longopts, NULL)) != -1) {
         switch (c) {
             case 'h':
-                printf ("Test success\n");
+                helper_displayHelp (argv[0]);
+                freeSystemResources (property);
+
+                exit (EXIT_SUCCESS);
+                break;
+            case 'v':
+                helper_displayVersion ();
+                freeSystemResources (property);
+
+                exit (EXIT_SUCCESS);
+                break;
+            case 'd':
+                helper_displayDetails ();
+                freeSystemResources (property);
+                
+                exit (EXIT_SUCCESS);
                 break;
             case 'm':
                 property->args.meltedFile = malloc (strlen(optarg));
@@ -102,7 +121,9 @@ int freeSystemResources(PosixThreadIPC_t *property) {
         free(property->frameBuffer);
         free(property->frameBuffer_Back);
     }
-    close(property->meltFileDescriptor);
+
+    if (property->meltFileDescriptor > 0)
+        close(property->meltFileDescriptor);
 
     property->buffer = NULL;
     property->bigBuffer = NULL;
@@ -110,9 +131,9 @@ int freeSystemResources(PosixThreadIPC_t *property) {
     property->frameBuffer_Back = NULL;
     property->meltFileDescriptor = -1;
 
-    if (property->args.meltedFile) free (property->args.meltedFile);
-    if (property->args.wavFile) free (property->args.wavFile);
-    if (property->args.pulseLib) free (property->args.pulseLib);
+    if (property->args.meltedFile != NULL) free (property->args.meltedFile);
+    if (property->args.wavFile != NULL) free (property->args.wavFile);
+    if (property->args.pulseLib != NULL) free (property->args.pulseLib);
 
     return 0;
 }

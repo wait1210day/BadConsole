@@ -27,7 +27,8 @@ int main(int argc, char **argv) {
     ppc.prop = &property;
 
     // 初始化结构体并打开相应文件
-    if (initDataStruct(&property, argv, argc) < 0) goto _end;
+    if (initDataStruct(&property, argv, argc) < 0)
+        goto _end;
 
     // 加载文件和库
     if (parseMeltedFileHeader (&property, &fileMetaData) < 0)
@@ -61,7 +62,7 @@ int main(int argc, char **argv) {
 
 _end:
     // 释放占用的资源
-    freeSystemResources(&property);
+    freeSystemResources (&property);
     freePulseaudioDynamicLib (&ppc);
 
     return cancel_val;

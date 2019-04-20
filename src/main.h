@@ -8,6 +8,7 @@
 #include "metadata.h"
 
 #ifdef __gnu_linux__
+#define CCB_enable_pulseaudio   1
 #include <pulse/simple.h>
 #endif
 
