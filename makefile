@@ -1,12 +1,12 @@
-all: main
+all: melter
 .PHONY: all
 
-main: toolkit.o compositor.o main.o \
+melter: toolkit.o compositor.o main.o \
 	threads_Playback.o threads_Prompt.o \
 	subcmds.o helper.o
 
 	gcc -lpulse-simple -lpthread -lreadline -ldl \
-		-o main \
+		-o melter \
 		toolkit.o \
 		compositor.o \
 		main.o \
