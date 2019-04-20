@@ -38,4 +38,4 @@ helper.o: src/helper.c
 
 .PHONY: clean
 clean:
-	rm -rf *.o main
+	rm -rf *.o melter
