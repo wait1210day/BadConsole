@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdio.h>
-#include <malloc.h>
+#include <stdlib.h>
 
 void frameCompositor (threadsPPC_t *ppc) {
 

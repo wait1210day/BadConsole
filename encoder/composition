@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+for ((i=0;i<5;i++)); do
+	echo "$i..."
+	sleep 1s
+done
+
+for fp in $(echo $(ls FrameDecode)); do
+	echo $fp
+	printf '\0\n' >>output/melted.data
+	cat FrameDecode/$fp >>output/melted.data
+
+	#tar zcvf FrameDecode.tar FrameDecode/
+	#rm -rf FrameDecoded/*
+done
+
+
+tar zcvf FrameDecode.tar FrameDecode/
+rm -rf FrameDecoded/*

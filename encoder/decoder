@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+for fp in $(echo $(ls frames)); do
+	printf "File $fp: "
+	touch FrameDecode/$fp.txt
+	python ./converter.py frames/$fp FrameDecode/$fp.txt
+done
+
+tar zcvf frames.tar frames/
+rm -rf frames/*

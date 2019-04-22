@@ -2,7 +2,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <malloc.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
 
@@ -33,14 +33,19 @@ int main(int argc, char **argv) {
     // 加载文件和库
     if (parseMeltedFileHeader (&property, &fileMetaData) < 0)
         goto _end;
+    printMetadata (&fileMetaData);
+
+#ifdef __gnu_linux__
     if (loadWAVDataFromPath (&ppc) < 0)
         goto _end;
-    printMetadata (&fileMetaData);
     loadPulseaudioDynamicLib (&ppc);
+#endif
 
     // 创建线程
     createCommandlinePosixThread (&commandline, &ppc);
+#ifdef __gnu_linux__
     createPlaybackPosixThread    (&playbackThread, &ppc, 2, 44100);
+#endif
     createCompositionPosixThread (&composition, &ppc, METADATA_HEADER_SIZE + 1);
 
     // 等待确认输入
@@ -54,7 +59,9 @@ int main(int argc, char **argv) {
     
     // 等待线程退出
     pthread_join (composition, NULL);
+#ifdef __gnu_linux__
     pthread_join (playbackThread, NULL);
+#endif
     pthread_cancel (commandline);
 
     // 执行到这一步说明不是 goto 过来的，说明程序没有发生错误退出
@@ -63,7 +70,10 @@ int main(int argc, char **argv) {
 _end:
     // 释放占用的资源
     freeSystemResources (&property);
+
+#ifdef __gnu_linux__
     freePulseaudioDynamicLib (&ppc);
+#endif
 
     return cancel_val;
 }

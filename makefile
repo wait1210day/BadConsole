@@ -1,40 +1,41 @@
-all: melter
-.PHONY: all
-
-melter: toolkit.o compositor.o main.o \
+OBJS = toolkit.o compositor.o main.o \
 	threads_Playback.o threads_Prompt.o \
 	subcmds.o helper.o
+EXEFILE = melter
 
-	gcc -lpulse-simple -lpthread -lreadline -ldl \
-		-o melter \
-		toolkit.o \
-		compositor.o \
-		main.o \
-		threads_Playback.o \
-		threads_Prompt.o \
-		subcmds.o \
-		helper.o
+CC = /usr/bin/clang
+CCFLAGS = -g
+CCLDFLAGS = -lpulse-simple -lpthread -lreadline -ldl
+
+PWD = $(shell pwd)
+
+all: $(EXEFILE)
+.PHONY: all
+
+$(EXEFILE): $(OBJS)
+
+	$(CC) $(CCLDFLAGS) $(OBJS) -o $(EXEFILE)
 
 main.o: src/main.c
-	gcc -c -Wall -O2 -Isrc/ -o main.o src/main.c -g
+	$(CC) $(CCFLAGS) -c -Wall -O3 -I$(PWD)/src -o main.o src/main.c
 
 compositor.o: src/compositor.c
-	gcc -c -Wall -O2 -Isrc/ -o compositor.o src/compositor.c -g
+	$(CC) $(CCFLAGS) -c -Wall -O3 -I$(PWD)/src -o compositor.o src/compositor.c
 
 toolkit.o: src/toolkit.c
-	gcc -c -Wall -O2 -Isrc/ -o toolkit.o src/toolkit.c -g
+	$(CC) $(CCFLAGS) -c -Wall -O3 -I$(PWD)/src -o toolkit.o src/toolkit.c
 
 threads_Playback.o: src/threads_Playback.c
-	gcc -c -Wall -O2 -Isrc/ -o threads_Playback.o src/threads_Playback.c -g
+	$(CC) $(CCFLAGS) -c -Wall -O3 -I$(PWD)/src -o threads_Playback.o src/threads_Playback.c
 
 threads_Prompt.o: src/threads_Prompt.c
-	gcc -c -Wall -O2 -Isrc/ -o threads_Prompt.o src/threads_Prompt.c -g
+	$(CC) $(CCFLAGS) -c -Wall -O3 -I$(PWD)/src -o threads_Prompt.o src/threads_Prompt.c
 
 subcmds.o: src/subcmds.c
-	gcc -c -Wall -O2 -Isrc/ -o subcmds.o src/subcmds.c -g
+	$(CC) $(CCFLAGS) -c -Wall -O3 -I$(PWD)/src -o subcmds.o src/subcmds.c
 
 helper.o: src/helper.c
-	gcc -c -Wall -O2 -Isrc/ -o helper.o src/helper.c -g
+	$(CC) $(CCFLAGS) -c -Wall -O3 -I$(PWD)/src -o helper.o src/helper.c
 
 .PHONY: clean
 clean:

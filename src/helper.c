@@ -43,6 +43,10 @@ void helper_displayDetails (void) {
     printf ("VBC_platform:\t%s", VBC_platform);
     printf ("VBC_builder:\t%s\n", VBC_builder);
     printf ("VBC_language:\t%s\n", VBC_language);
+#ifdef CCB_enable_pulseaudio
     printf ("CCB_enable_pulseaudio:\t%d\n", CCB_enable_pulseaudio);
+#else
+	printf ("CCB_enable_pulseaudio:\tNotSupported\n");
+#endif
     printf ("VBC_audio_drv:\t%s\n", VBC_PA);
 }

@@ -20,7 +20,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <malloc.h>
+// #include <stdlib.h>
 
 void WavDataPlayer(threadsPPC_t *ppc) {
 #ifdef __gnu_linux__
